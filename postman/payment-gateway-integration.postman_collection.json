@@ -1,0 +1,365 @@
+{
+  "info": {
+    "_postman_id": "2dcf35db-8fb8-4f31-86e1-00ccced2d3de",
+    "name": "Payment Gateway Integration Simulator",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Merchant, webhook, operations, retry, and support APIs for the payment gateway integration sandbox."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "merchantOrderId",
+      "value": "ORD-1001"
+    },
+    {
+      "key": "paymentId",
+      "value": "pay_cap_sample"
+    },
+    {
+      "key": "gatewayEventId",
+      "value": "evt_manual_1001"
+    }
+  ],
+  "item": [
+    {
+      "name": "Merchant APIs",
+      "item": [
+        {
+          "name": "Create Payment Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"merchant-demo\",\n  \"merchantOrderId\": \"{{merchantOrderId}}\",\n  \"gateway\": \"RAZORPAY\",\n  \"amount\": 1499.99,\n  \"currency\": \"INR\",\n  \"description\": \"Checkout order\",\n  \"customerEmail\": \"buyer@example.com\",\n  \"customerPhone\": \"+919999999999\",\n  \"metadata\": {\n    \"channel\": \"web\",\n    \"cartId\": \"CART-42\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"card\",\n  \"scenario\": \"SUCCESS\",\n  \"webhookDelaySeconds\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/orders/{{merchantOrderId}}/initiate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "orders",
+                "{{merchantOrderId}}",
+                "initiate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/orders/{{merchantOrderId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "orders",
+                "{{merchantOrderId}}",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Internal Ops APIs",
+      "item": [
+        {
+          "name": "Search Transaction",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/transactions/search?merchantOrderId={{merchantOrderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "transactions",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "merchantOrderId",
+                  "value": "{{merchantOrderId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Order History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/orders/{{merchantOrderId}}/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "orders",
+                "{{merchantOrderId}}",
+                "history"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Webhook Logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/webhooks?paymentId={{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "webhooks"
+              ],
+              "query": [
+                {
+                  "key": "paymentId",
+                  "value": "{{paymentId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Retry Queue",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/retries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "retries"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Simulation APIs",
+      "item": [
+        {
+          "name": "Duplicate Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantOrderId\": \"{{merchantOrderId}}\",\n  \"eventType\": \"payment.captured\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/simulations/duplicate-webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "simulations",
+                "duplicate-webhook"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delayed Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantOrderId\": \"{{merchantOrderId}}\",\n  \"eventType\": \"payment.captured\",\n  \"delaySeconds\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/simulations/delayed-webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "simulations",
+                "delayed-webhook"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Payment Success DB Miss",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantOrderId\": \"{{merchantOrderId}}\",\n  \"note\": \"Force stale merchant-visible state\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/simulations/payment-success-db-miss",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internal",
+                "simulations",
+                "payment-success-db-miss"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Support APIs",
+      "item": [
+        {
+          "name": "Create Issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"merchantId\": \"merchant-demo\",\n  \"merchantOrderId\": \"{{merchantOrderId}}\",\n  \"paymentId\": \"{{paymentId}}\",\n  \"issueType\": \"PAYMENT_NOT_UPDATED\",\n  \"summary\": \"Customer was charged but store shows failed\",\n  \"description\": \"Investigate stale state and delayed callback\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/support/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "support",
+                "issues"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Issues",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/support/issues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "support",
+                "issues"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export Daily Issues",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/support/issues/export/daily?date=2026-04-28",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "support",
+                "issues",
+                "export",
+                "daily"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-04-28"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
